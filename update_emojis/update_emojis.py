@@ -26,9 +26,9 @@ class Downloader:
         self.client.event(self.on_ready)
         # runs until client close, this will populate self.enumerated_emojis
         self.client.run(self.token)
-        asyncio.run(self.dump_enumerate_emojis())
+        asyncio.run(self.dump_enumerated_emojis())
 
-    async def dump_enumerate_emojis(self) -> None:
+    async def dump_enumerated_emojis(self) -> None:
         all_emojis = sum(len(x) for x in self.enumerated_emojis.values())
         prog = tqdm(self.enumerated_emojis.items(), total=all_emojis, unit='emojis', unit_scale=True, unit_divisor=1000)
         for guild, emojis in prog:
