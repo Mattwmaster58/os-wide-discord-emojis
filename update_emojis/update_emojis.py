@@ -26,6 +26,7 @@ class Downloader:
         self.client.event(self.on_ready)
         # runs until client close, this will populate self.enumerated_emojis
         self.client.run(self.token)
+        # download all enumerate emojis (no auth needed)
         asyncio.run(self.dump_enumerated_emojis())
 
     async def dump_enumerated_emojis(self) -> None:
