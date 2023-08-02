@@ -8,6 +8,7 @@ import os
 import sys
 import urllib.request
 
+import dotenv
 from tqdm import tqdm
 from appdirs import user_data_dir
 from slugify import slugify
@@ -30,6 +31,8 @@ class Downloader:
         asyncio.run(self.dump_enumerated_emojis())
 
     async def dump_enumerated_emojis(self) -> None:
+        start = time.perf_counter()
+        n_downloaded = 0
         all_emojis = sum(len(x) for x in self.enumerated_emojis.values())
         prog = tqdm(self.enumerated_emojis.items(), total=all_emojis, unit='emojis', unit_scale=True, unit_divisor=1000)
         for guild, emojis in prog:
@@ -39,6 +42,7 @@ class Downloader:
                 suffix = "gif" if em.animated else "png"
                 f_path = self.output_path / f"{f_stem}.{suffix}"
                 if not f_path.exists():
+                    n_downloaded += 1
                     with open(f_path, "wb") as outFile:
                         # send a different header because otherwise we get a 403
                         req = urllib.request.Request(
@@ -47,6 +51,7 @@ class Downloader:
                         data = urllib.request.urlopen(req).read()
                         outFile.write(data)
                 prog.update(1)
+        print(f"downloaded all {all_emojis} emojis in {(time.perf_counter() - start):.3f}s. {all_emojis - n_downloaded} existing, {n_downloaded} downloaded")
 
 
 
@@ -79,7 +84,3 @@ class Downloader:
         return slugify(inp).replace(".", "_")
 
 
-Downloader(
-    "NDIwNzQ0NjExMjM4MTE3Mzc2.GGF8fZ.rLrfDicWjMeWbVN5bI44nylaHgFPzijQvlATjo",
-    user_data_dir("universal-discord-emojis")
-).dump_emojis()
