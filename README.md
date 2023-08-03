@@ -11,6 +11,7 @@ This script uses libraries that enable "self botting", which is explicitly again
  - Fast and near universal
  - Animated and static emoji support
  - Normalize emoji size
+ - Deduplicated search results
 
 ## Installation
 
