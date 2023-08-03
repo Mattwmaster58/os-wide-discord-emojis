@@ -58,11 +58,12 @@ function loadEmojis(emojiObjs) {
             // i think we continue through errors in Qt's runtime, thus this is reachable
             break;
         }
-        const emojiBytes = emojiFile.readAll();
-        totalBytesRead += emojiBytes.length;
         let payload = {
             "application/x-copyq-tags": `${emojiObj.name},${emojiObj.guild},${emojiObj.extension}`,
-            [`image/${emojiObj.extension}`]: emojiBytes
+            // this will onnly be used by apps when it's a GIF
+            "text/uri-list": `file:///${emojiObj.path}`,
+            // this will only be used by apps when it's a PNG, but it's necessary to include to preview gifs
+            [`image/${emojiObj.extension}`]: emojiBytes,
         };
         insert(++i, payload);
     }
