@@ -17,11 +17,12 @@ except ImportError:
 def main():
     dotenv.load_dotenv()
     parser = argparse.ArgumentParser(
-        description="A tool with subcommands: download and generate"
+        description="Universal Discord Emoji",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
     subparsers = parser.add_subparsers(dest="command")
-    parser_download = subparsers.add_parser("download", help="Download a file")
+    parser_download = subparsers.add_parser("download", help="Updates emojis based on the servers you are in")
     parser_download.add_argument(
         "--emoji-dir",
         type=str,
@@ -51,6 +52,18 @@ def main():
         help="Number of emojis to load to the clipboard",
         default=25,
     )
+    parser_generate.add_argument(
+        "--command-name",
+        type=str,
+        help="Name of the command in CopyQ",
+        default="Universal Emoji",
+    )
+    parser_generate.add_argument(
+        "--command-shortcut",
+        type=str,
+        help="Shortcut to trigger command in CopyQ",
+        default="ctrl+shift+;",
+    )
     args = parser.parse_args()
     if args.command == "download":
         token = os.getenv("DISCORD_TOKEN")
@@ -69,6 +82,8 @@ def main():
         print("generating plugin from template")
         emoji_dir = Path(args.emoji_dir)
         generate_plugin(
+            command_name=args.command_name,
+            command_shortcut=args.command_shortcut,
             emoji_dir=emoji_dir.absolute().as_posix(),
             emoji_load_limit=args.emoji_load_limit,
         )
