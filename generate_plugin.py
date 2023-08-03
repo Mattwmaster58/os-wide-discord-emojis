@@ -2,9 +2,6 @@ import re
 import textwrap
 from pathlib import Path
 
-from jinja2 import Environment, FileSystemLoader
-
-
 def make_replacer(template_kwargs):
     def replacer(match: re.Match) -> str:
         key = match.group(1)
