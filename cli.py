@@ -20,7 +20,7 @@ def main():
         description="A tool with subcommands: download and generate"
     )
 
-    subparsers = parser.add_subparsers(title="Command", dest="command")
+    subparsers = parser.add_subparsers(dest="command")
     parser_download = subparsers.add_parser("download", help="Download a file")
     parser_download.add_argument(
         "--emoji-dir",
@@ -28,6 +28,7 @@ def main():
         help="Directory to store emojis in. Will be created if it does not exist",
         default=user_data_dir("universal-discord-emojis"),
     )
+
     parser_download.add_argument(
         "--normalize",
         type=int,
@@ -38,6 +39,7 @@ def main():
         default=None,
     )
     parser_download.add_argument("url", help="URL to the file to download")
+
     parser_generate = subparsers.add_parser("generate", help="Generate something")
     parser_generate.add_argument(
         "--emoji-dir",
@@ -45,9 +47,14 @@ def main():
         help="Directory to search for emojis in",
         default=user_data_dir("universal-discord-emojis"),
     )
+    parser_generate.add_argument(
+        "--emoji-load-limit",
+        type=int,
+        help="Number of emojis to load to the clipboard",
+        default=25,
+    )
     args = parser.parse_args()
     if args.command == "download":
-        parser_download = parser_generate.parse_args()
         token = os.getenv("DISCORD_TOKEN")
         if not token:
             print(
@@ -55,14 +62,13 @@ def main():
             )
             return
 
-        downloader = Downloader(token, Path(parser_download.emoji_dir))
+        downloader = Downloader(token, Path(args.emoji_dir))
         downloader.dump_emojis()
     elif args.command == "generate":
         print("generating plugin from template")
-        generate_args = parser_generate.parse_args()
         generate_plugin(
-            emoji_dir=generate_args.emoji_dir,
-            emoji_load_limit=generate_args.emoji_load_limit,
+            emoji_dir=args.emoji_dir,
+            emoji_load_limit=args.emoji_load_limit,
         )
 
 
