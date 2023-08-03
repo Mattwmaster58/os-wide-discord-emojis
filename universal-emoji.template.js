@@ -99,7 +99,7 @@ if (emojiSearchTerm) {
     }
     const emojis = emojiSearch(emojiSearchTerm);
     if (emojis.length === 0) {
-        popup("0 results", `No search results found for search term ${emojiSearchTerm}`);
+        popup("0 results", `No search results found for search term "${emojiSearchTerm}"`);
     } else {
         // this sets where we insert + select the tab in the gui
         tab(TAB_NAME);
