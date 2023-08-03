@@ -50,7 +50,7 @@ def main():
         "--emoji-load-limit",
         type=int,
         help="Number of emojis to load to the clipboard",
-        default=25,
+        default=50,
     )
     parser_generate.add_argument(
         "--command-name",

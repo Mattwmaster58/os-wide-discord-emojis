@@ -49,7 +49,8 @@ function loadEmojis(emojiObjs) {
     let totalBytesRead = 0;
     let i = 0;
     let clampedSizeEmojiList = emojiObjs.slice(0, EMOJI_LOAD_LIMIT);
-    for (const emojiObj of clampedSizeEmojiList) {
+    let seenEmojiHashes = new Set();
+    for (const emojiObj of emojiObjs) {
         console.debug("loading:", JSON.stringify(emojiObj));
         const emojiFile = new File(emojiObj.path);
         if (!emojiFile.openReadOnly()) {
@@ -58,14 +59,26 @@ function loadEmojis(emojiObjs) {
             // i think we continue through errors in Qt's runtime, thus this is reachable
             break;
         }
-        let payload = {
-            "application/x-copyq-tags": `${emojiObj.name},${emojiObj.guild},${emojiObj.extension}`,
-            // this will onnly be used by apps when it's a GIF
-            "text/uri-list": `file:///${emojiObj.path}`,
-            // this will only be used by apps when it's a PNG, but it's necessary to include to preview gifs
-            [`image/${emojiObj.extension}`]: emojiBytes,
-        };
-        insert(++i, payload);
+        const tags = `${emojiObj.name},${emojiObj.guild},${emojiObj.extension}`;
+        const emojiBytes = emojiFile.readAll();
+        const emojiMd5 = md5sum(emojiBytes);
+        if (!seenEmojiHashes.has(emojiMd5)) {
+            seenEmojiHashes.add(emojiMd5);
+            totalBytesRead += emojiBytes.length;
+            insert(++i, {
+                "application/x-copyq-tags": tags,
+                // this will onnly be used by apps when it's a GIF
+                "text/uri-list": `file:///${emojiObj.path}`,
+                // this will only be used by apps when it's a PNG, but it's necessary to include to preview gifs
+                [`image/${emojiObj.extension}`]: emojiBytes,
+            });
+            if (i > EMOJI_LOAD_LIMIT) {
+                console.log(`loaded the limit of ${EMOJI_LOAD_LIMIT}`);
+                break;
+            }
+        } else {
+            console.log(`skipping byte-for-byte identical emoji ${tags}`);
+        }
     }
     console.log(`read cumulative ${totalBytesRead}b for ${clampedSizeEmojiList.length} emojis`);
 }
@@ -76,22 +89,33 @@ const emojiSearchTerm = dialog(
 );
 
 if (emojiSearchTerm) {
-    console.log(`searching with term: ${emojiSearchTerm}`);
-    const emojis = emojiSearch(emojiSearchTerm);
-    // this sets where we insert + select the tab in the gui
-    tab(TAB_NAME);
-    setCurrentTab(TAB_NAME);
-    console.log(`loading ${emojis.length} emojis to clipboard`);
-    loadEmojis(emojis, TAB_NAME);
-    console.log("waiting for window to close");
-    showAt();
-    while (visible()) sleep(100);
+    console.log(`searching with term: ${JSON.stringify(emojiSearchTerm)}`);
     try {
-        console.log("window no longer visible, clearing tab");
+        console.log("clearing search result tab prior to search");
         // could've been removed by user before we do it ourselves
         removeTab(TAB_NAME);
     } catch (e) {
-        console.log("tab was removed before we could do it ourselves");
+        console.log("tab already does not exist");
+    }
+    const emojis = emojiSearch(emojiSearchTerm);
+    if (emojis.length === 0) {
+        popup("0 results", `No search results found for search term ${emojiSearchTerm}`);
+    } else {
+        // this sets where we insert + select the tab in the gui
+        tab(TAB_NAME);
+        setCurrentTab(TAB_NAME);
+        console.log(`loading ${emojis.length} emojis to clipboard`);
+        loadEmojis(emojis, TAB_NAME);
+        console.log("waiting for window to close");
+        showAt();
+        while (visible()) sleep(100);
+        try {
+            console.log("window no longer visible, clearing tab");
+            // could've been removed by user before we do it ourselves
+            removeTab(TAB_NAME);
+        } catch (e) {
+            console.log("tab was removed before we could do it ourselves");
+        }
     }
 } else {
     console.log("no search term inputted");
