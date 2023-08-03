@@ -34,10 +34,16 @@ class Downloader:
         start = time.perf_counter()
         n_downloaded = 0
         all_emojis = sum(len(x) for x in self.enumerated_emojis.values())
-        prog = tqdm(self.enumerated_emojis.items(), total=all_emojis, unit='emojis', unit_scale=True, unit_divisor=1000)
+        prog = tqdm(
+            self.enumerated_emojis.items(),
+            total=all_emojis,
+            unit="emojis",
+            unit_scale=True,
+            unit_divisor=1000,
+        )
         for guild, emojis in prog:
             for em in emojis:
-                f_stem = f'{self.internal_slug(guild)}.{self.internal_slug(em.name)}'
+                f_stem = f"{self.internal_slug(guild)}.{self.internal_slug(em.name)}"
                 # all emojis are either GIF or PNG as of time of writing
                 suffix = "gif" if em.animated else "png"
                 f_path = self.output_path / f"{f_stem}.{suffix}"
@@ -51,16 +57,18 @@ class Downloader:
                         data = urllib.request.urlopen(req).read()
                         outFile.write(data)
                 prog.update(1)
-        print(f"downloaded all {all_emojis} emojis in {(time.perf_counter() - start):.3f}s. {all_emojis - n_downloaded} existing, {n_downloaded} downloaded")
-
-
+        print(
+            f"downloaded all {all_emojis} emojis in {(time.perf_counter() - start):.3f}s. {all_emojis - n_downloaded} existing, {n_downloaded} downloaded"
+        )
 
     async def on_ready(self):
         """
         This function name is important, otherwise the client won't notify us of the "ready" event.
          We use this to proxy to our real on_ready function, which is named in line with what it actually does
-         """
-        print(f'Successfully auth-ed in as "{self.client.user.name}" with ID {self.client.user.id}')
+        """
+        print(
+            f'Successfully auth-ed in as "{self.client.user.name}" with ID {self.client.user.id}'
+        )
         await self._enumerate_emojis()
 
     async def _enumerate_emojis(self):
@@ -72,15 +80,15 @@ class Downloader:
         # freeze the default dict
         guild_to_emojis.default_factory = None
         self.enumerated_emojis = guild_to_emojis
-        print(f"enumerated all {sum(len(x) for x in guild_to_emojis.values())} emojis in {(time.perf_counter() - start):.3f}s")
+        print(
+            f"enumerated all {sum(len(x) for x in guild_to_emojis.values())} "
+            f"emojis in {(time.perf_counter() - start):.3f}s"
+        )
 
         # important: this must be last, this yields to the event loop (obviously)
         await self.client.close()
 
-
     @staticmethod
-    def internal_slug(inp: str) ->  str:
+    def internal_slug(inp: str) -> str:
         """We use '.' for our own meaning somewhere else, thus replace this from the guild name"""
         return slugify(inp).replace(".", "_")
-
-
