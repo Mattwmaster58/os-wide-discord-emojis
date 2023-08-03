@@ -28,7 +28,7 @@ pip install -r requirements.txt
 ### Step 1: Download and normalize emojis
 Make sure the DISCORD_TOKEN environment variable is set, optionally through a .env file.
 ```bash
-cli.py download --normalize 128
+python cli.py download --normalize 128
 ```
 Example output:
 ```bash
