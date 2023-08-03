@@ -32,13 +32,11 @@ def main():
     parser_download.add_argument(
         "--normalize",
         type=int,
-        nargs="?",
-        help="Whether to normalize emoji size and if so, what size. "
-        "Not specifying any size will use the default. "
+        help="What size to normalize emojis to, 64-128 is recommended. "
+        "This operation requires the ffmpeg variable to be in the path, as pure python solutions are quite slow. "
         "By default, this is not done",
         default=None,
     )
-    parser_download.add_argument("url", help="URL to the file to download")
 
     parser_generate = subparsers.add_parser("generate", help="Generate something")
     parser_generate.add_argument(
@@ -64,10 +62,14 @@ def main():
 
         downloader = Downloader(token, Path(args.emoji_dir))
         downloader.dump_emojis()
+        if args.normalize is not None:
+            downloader.normalize(args.normalize)
+
     elif args.command == "generate":
         print("generating plugin from template")
+        emoji_dir = Path(args.emoji_dir)
         generate_plugin(
-            emoji_dir=args.emoji_dir,
+            emoji_dir=emoji_dir.absolute().as_posix(),
             emoji_load_limit=args.emoji_load_limit,
         )
 
