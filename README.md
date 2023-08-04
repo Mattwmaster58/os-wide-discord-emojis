@@ -69,3 +69,6 @@ For a full list of available options, run `cli.py generate --help`.
  - Select the file generated in the previous step
 
 
+### Limitations
+ - Transparent PNGs do not show correctly in Teams
+   - as far as I know this is a Teams issue and there is no way around this.
