@@ -49,11 +49,19 @@ class Downloader:
                     total_skipped += 1
                     continue
                 temp_file = child.with_stem(f"{child.stem}_temp")
+                complex_filters = [f"[0:v]scale=-1:{size}:flags=lanczos"]
+                if child.suffix == ".gif":
+                    # if it's a gif, we need to explicitly generate a palette from the source gif, and then later
+                    # use that palette to re-encode the output gif. My understanding is that without an explicit
+                    # specification of a palette, a standard palette without transparency is used,
+                    # effectively deleting any transparency effects from the gif
+                    # see: https://ffmpeg.org/ffmpeg-filters.html#Filtergraph-description
+                    complex_filters.append("split [a][b];[a]palettegen [p];[b][p]paletteuse")
                 subprocess.run(
                     [
                         "ffmpeg", "-y",
                         *["-i", child.absolute().as_posix()],
-                        *["-vf", f"scale={size}:-1"],
+                        *["-filter_complex", ",".join(complex_filters)],
                         temp_file.absolute().as_posix(),
                     ],
                     stdout=subprocess.DEVNULL,
