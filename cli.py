@@ -39,7 +39,7 @@ def main():
 
         dumper = Dumper(token, Path(args.emoji_dir))
         if not args.normalize_only:
-            dumper.dump_emojis()
+            dumper.dump_emojis(force_refresh=args.refresh)
         if args.normalize is not None:
             dumper.normalize(args.normalize)
 
@@ -63,6 +63,13 @@ def add_dump_parser(subparsers):
         default=user_data_dir("universal-discord-emojis"),
     )
     parser_download.add_argument(
+        "--refresh",
+        type=bool,
+        help="By default, emojis are not downloaded if already present. "
+             "If this flag is specified, all emojis are downloaded whether they currently exist or not.",
+        default=False
+    )
+    parser_download.add_argument(
         "--normalize",
         type=int,
         help="What size to normalize emojis to, 64-128 is recommended. "
@@ -73,10 +80,11 @@ def add_dump_parser(subparsers):
     parser_download.add_argument(
         "--normalize-only",
         type=bool,
-        help=("Don't download anything, only normalize ALL emojis already downloaded, "
+        help="Don't download anything, only normalize ALL emojis already downloaded, "
               "including emojis which may have have already been normalized. "
               "If the input and output size are the same, no degrading in quality is expected. "
-              "--normalize must also be specified for any normalization to take place.")
+              "--normalize must also be specified for any normalization to take place.",
+        default=False
     )
 
 

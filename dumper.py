@@ -25,14 +25,14 @@ class Dumper:
         self.enumerated_emojis: dict[str, list[discord.Emoji]] = {}
         self.dump_start_time = None
 
-    def dump_emojis(self):
+    def dump_emojis(self, force_refresh: bool):
         self.dump_start_time = datetime.utcnow()
         # listen for on_ready even upon logging in
         self.client.event(self.on_ready)
         # runs until client close, this will populate self.enumerated_emojis
         self.client.run(self.token)
         # download all enumerate emojis (no auth needed)
-        asyncio.run(self._dump_enumerated_emojis())
+        asyncio.run(self._dump_enumerated_emojis(force_refresh))
 
     def normalize(self, size: int):
         """Normalizes all emojis, static and animated to a specified size with ffmpeg"""
@@ -92,7 +92,7 @@ class Dumper:
         )
         await self._enumerate_emojis()
 
-    async def _dump_enumerated_emojis(self) -> None:
+    async def _dump_enumerated_emojis(self, force_refresh: bool) -> None:
         start = time.perf_counter()
         n_downloaded = 0
         all_emojis = sum(len(x) for x in self.enumerated_emojis.values())
