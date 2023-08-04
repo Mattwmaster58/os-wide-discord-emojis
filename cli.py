@@ -22,7 +22,7 @@ def main():
     )
 
     subparsers = parser.add_subparsers(dest="command")
-    parser_download = subparsers.add_parser("download", help="Updates emojis based on the servers you are in")
+    parser_download = subparsers.add_parser("dump", help="Updates emojis based on the servers you are in")
     parser_download.add_argument(
         "--emoji-dir",
         type=str,
