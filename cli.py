@@ -7,8 +7,8 @@ try:
     import dotenv
     from appdirs import user_data_dir
 
-    from update_emojis import Downloader
-    from generate_plugin import generate_plugin
+    from dumper import Dumper
+    from plugin_generator import generate_plugin
 except ImportError:
     print("did you install necessary requirements?")
     raise
@@ -72,7 +72,7 @@ def main():
         default="ctrl+shift+;",
     )
     args = parser.parse_args()
-    if args.command == "download":
+    if args.command == "dump":
         token = os.getenv("DISCORD_TOKEN")
         if not token:
             print(
@@ -80,7 +80,7 @@ def main():
             )
             return
 
-        downloader = Downloader(token, Path(args.emoji_dir))
+        downloader = Dumper(token, Path(args.emoji_dir))
         if not args.normalize_only:
             downloader.dump_emojis()
         if args.normalize is not None:

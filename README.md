@@ -29,7 +29,7 @@ pip install -r requirements.txt
 ### Step 1: Download and normalize emojis
 Make sure the DISCORD_TOKEN environment variable is set, optionally through a .env file.
 ```bash
-python cli.py download --normalize 128
+python cli.py dump --normalize 128
 ```
 Example output:
 ```bash
@@ -46,7 +46,7 @@ normalizing emojis
 normalized all 2027 emojis in 0.474s. 2027 skipped, 0 processed
 
 ```
-For a full list of available options, run `cli.py download --help`.
+For a full list of available options, run `cli.py dump --help`.
 
 ### Step 2: Generate a CopyQ command file
 

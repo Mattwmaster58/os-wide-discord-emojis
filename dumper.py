@@ -16,7 +16,7 @@ from appdirs import user_data_dir
 from slugify import slugify
 
 
-class Downloader:
+class Dumper:
     def __init__(self, token: str, output_path: Path):
         self.token = token
         self.output_path = Path(output_path)

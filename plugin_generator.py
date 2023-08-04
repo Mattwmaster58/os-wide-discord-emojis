@@ -2,15 +2,15 @@ import re
 import textwrap
 from pathlib import Path
 
-def make_replacer(template_kwargs):
-    def replacer(match: re.Match) -> str:
-        key = match.group(1)
-        return str(template_kwargs[key])
-
-    return replacer
-
 
 def render_template(template_path, template_kwargs):
+    def make_replacer(template_kwargs):
+        def replacer(match: re.Match) -> str:
+            key = match.group(1)
+            return str(template_kwargs[key])
+
+        return replacer
+
     with open(template_path, "r") as template:
         template_str = template.read()
         return re.sub(
