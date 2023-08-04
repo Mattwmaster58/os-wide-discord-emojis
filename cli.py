@@ -13,6 +13,9 @@ except ImportError:
     print("did you install necessary requirements?")
     raise
 
+DUMP_COMMAND = "dump"
+GENERATE_COMMAND = "generate"
+
 
 def main():
     dotenv.load_dotenv()
@@ -21,8 +24,38 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
-    subparsers = parser.add_subparsers(dest="command")
-    parser_download = subparsers.add_parser("dump", help="Updates emojis based on the servers you are in")
+    subparser = parser.add_subparsers(dest="command")
+    add_dump_parser(subparser)
+    add_generate_parser(subparser)
+    args = parser.parse_args()
+
+    if args.command == DUMP_COMMAND:
+        token = os.getenv("DISCORD_TOKEN")
+        if not token:
+            print(
+                "DISCORD_TOKEN env variable not set. Create a .env file or set it in your terminal"
+            )
+            return
+
+        dumper = Dumper(token, Path(args.emoji_dir))
+        if not args.normalize_only:
+            dumper.dump_emojis()
+        if args.normalize is not None:
+            dumper.normalize(args.normalize)
+
+    elif args.command == GENERATE_COMMAND:
+        print("generating plugin from template")
+        emoji_dir = Path(args.emoji_dir)
+        generate_plugin(
+            command_name=args.command_name,
+            command_shortcut=args.command_shortcut,
+            emoji_dir=emoji_dir.absolute().as_posix(),
+            emoji_load_limit=args.emoji_load_limit,
+        )
+
+
+def add_dump_parser(subparsers):
+    parser_download = subparsers.add_parser(DUMP_COMMAND, help="Updates emojis based on the servers you are in")
     parser_download.add_argument(
         "--emoji-dir",
         type=str,
@@ -33,8 +66,8 @@ def main():
         "--normalize",
         type=int,
         help="What size to normalize emojis to, 64-128 is recommended. "
-        "This operation requires the ffmpeg variable to be in the path, as pure python solutions are quite slow. "
-        "By default, this is not done",
+             "This operation requires the ffmpeg variable to be in the path, as pure python solutions are quite slow. "
+             "By default, this is not done",
         default=None,
     )
     parser_download.add_argument(
@@ -46,7 +79,9 @@ def main():
               "--normalize must also be specified for any normalization to take place.")
     )
 
-    parser_generate = subparsers.add_parser("generate", help="Generate something")
+
+def add_generate_parser(subparsers):
+    parser_generate = subparsers.add_parser(GENERATE_COMMAND, help="Generate something")
     parser_generate.add_argument(
         "--emoji-dir",
         type=str,
@@ -71,30 +106,6 @@ def main():
         help="Shortcut to trigger command in CopyQ",
         default="ctrl+shift+;",
     )
-    args = parser.parse_args()
-    if args.command == "dump":
-        token = os.getenv("DISCORD_TOKEN")
-        if not token:
-            print(
-                "DISCORD_TOKEN env variable not set. Create a .env file or set it elsewhere"
-            )
-            return
-
-        downloader = Dumper(token, Path(args.emoji_dir))
-        if not args.normalize_only:
-            downloader.dump_emojis()
-        if args.normalize is not None:
-            downloader.normalize(args.normalize)
-
-    elif args.command == "generate":
-        print("generating plugin from template")
-        emoji_dir = Path(args.emoji_dir)
-        generate_plugin(
-            command_name=args.command_name,
-            command_shortcut=args.command_shortcut,
-            emoji_dir=emoji_dir.absolute().as_posix(),
-            emoji_load_limit=args.emoji_load_limit,
-        )
 
 
 if __name__ == "__main__":
