@@ -2,13 +2,13 @@ import argparse
 import os
 from pathlib import Path
 
-from generate_plugin import generate_plugin
 
 try:
     import dotenv
     from appdirs import user_data_dir
 
     from update_emojis import Downloader
+    from generate_plugin import generate_plugin
 except ImportError:
     print("did you install necessary requirements?")
     raise
@@ -29,7 +29,6 @@ def main():
         help="Directory to store emojis in. Will be created if it does not exist",
         default=user_data_dir("universal-discord-emojis"),
     )
-
     parser_download.add_argument(
         "--normalize",
         type=int,
@@ -37,6 +36,14 @@ def main():
         "This operation requires the ffmpeg variable to be in the path, as pure python solutions are quite slow. "
         "By default, this is not done",
         default=None,
+    )
+    parser_download.add_argument(
+        "--normalize-only",
+        type=bool,
+        help=("Don't download anything, only normalize ALL emojis already downloaded, "
+              "including emojis which may have have already been normalized. "
+              "If the input and output size are the same, no degrading in quality is expected. "
+              "--normalize must also be specified for any normalization to take place.")
     )
 
     parser_generate = subparsers.add_parser("generate", help="Generate something")
@@ -74,7 +81,8 @@ def main():
             return
 
         downloader = Downloader(token, Path(args.emoji_dir))
-        downloader.dump_emojis()
+        if not args.normalize_only:
+            downloader.dump_emojis()
         if args.normalize is not None:
             downloader.normalize(args.normalize)
 
