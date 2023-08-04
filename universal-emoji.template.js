@@ -108,9 +108,17 @@ if (emojiSearchTerm) {
         loadEmojis(emojis, TAB_NAME);
         console.log("waiting for window to close");
         showAt();
-        while (visible()) sleep(100);
+        while (true) {
+            while (visible()) sleep(75);
+            console.log("window no longer visible, waiting additional grace period before clearing");
+            sleep(2000);
+            if (!visible()) {
+                break;
+            } else {
+                console.log("window was re-opened within the grace period, deferring tab removal for now");
+            }
+        }
         try {
-            console.log("window no longer visible, clearing tab");
             // could've been removed by user before we do it ourselves
             removeTab(TAB_NAME);
         } catch (e) {
