@@ -6,7 +6,8 @@ This repo contains the tools to download and use Discord emojis anywhere you can
 This script uses libraries that enable "self botting", which is explicitly against Discord's ToS. Accounts you use with this script may be banned. It is recommended to create an alternate account and join the servers you'd like to use.
 
 ## Demo
-![TeamsDemo.gif](demo%2FTeamsDemo.gif)
+Pasting to a Teams chat.
+![pasting a discord animated emoji into a teams chat](demo%2FTeamsDemo.gif)
 ## Features
  - Fast and near universal
  - Animated and static emoji support
@@ -17,7 +18,7 @@ This script uses libraries that enable "self botting", which is explicitly again
 
 ### Prerequisites
  - [CopyQ](https://copyq.readthedocs.io/en/latest/) installed
- - Discord self-token. This is the value `Authorization` the authorization header which you can inspect in your browser or client.
+ - Discord self-token. This is the value `Authorization` the authorization header for `/api` requests, which you can inspect in your browser or client.
  - Python with necessary libraries:
 ```bash
 python -m venv venv
