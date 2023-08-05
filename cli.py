@@ -64,10 +64,10 @@ def add_dump_parser(subparsers):
     )
     parser_download.add_argument(
         "--refresh",
-        type=bool,
         help="By default, emojis are not downloaded if already present. "
              "If this flag is specified, all emojis are downloaded whether they currently exist or not.",
-        default=False
+        default=False,
+        action='store_true',
     )
     parser_download.add_argument(
         "--normalize",
@@ -79,12 +79,12 @@ def add_dump_parser(subparsers):
     )
     parser_download.add_argument(
         "--normalize-only",
-        type=bool,
         help="Don't download anything, only normalize ALL emojis already downloaded, "
               "including emojis which may have have already been normalized. "
               "If the input and output size are the same, no degrading in quality is expected. "
               "--normalize must also be specified for any normalization to take place.",
-        default=False
+        default=False,
+        action='store_true',
     )
 
 

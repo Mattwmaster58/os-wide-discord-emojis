@@ -11,6 +11,7 @@ import sys
 import urllib.request
 
 import dotenv
+import httpx
 from tqdm import tqdm
 from appdirs import user_data_dir
 from slugify import slugify
@@ -82,7 +83,7 @@ class Dumper:
         )
 
 
-    async def on_ready(self):
+    async def on_ready(self) -> None:
         """
         This function name is important, otherwise the client won't notify us of the "ready" event.
          We use this to proxy to our real on_ready function, which is named in line with what it actually does
@@ -104,26 +105,41 @@ class Dumper:
             unit_divisor=1000,
             miniters=1,
         )
+        client = httpx.AsyncClient(transport=httpx.AsyncHTTPTransport(retries=2))
+
         for guild, emojis in prog:
             for em in emojis:
-                f_stem = f"{self.internal_slug(guild)}.{self.internal_slug(em.name)}"
                 # all emojis are either GIF or PNG as of time of writing
-                suffix = "gif" if em.animated else "png"
-                f_path = self.output_path / f"{f_stem}.{suffix}"
-                if not f_path.exists():
-                    n_downloaded += 1
-                    with open(f_path, "wb") as outFile:
-                        # send a different header because otherwise we get a 403
-                        req = urllib.request.Request(
-                            em.url, headers={"User-Agent": "Mozilla/5.0"}
-                        )
-                        data = urllib.request.urlopen(req).read()
-                        outFile.write(data)
+                n_downloaded += await self._download_emoji_job(client, em, force_refresh)
                 prog.update(1)
         print(
-            f"downloaded all {all_emojis} emojis in {(time.perf_counter() - start):.3f}s. "
+            f"downloaded all {all_emojis} emojis from {len(self.enumerated_emojis)} servers "
+            f"in {(time.perf_counter() - start):.3f}s. "
             f"{all_emojis - n_downloaded} existing, {n_downloaded} downloaded"
         )
+
+    async def _download_emoji_job(self, client: httpx.AsyncClient, emoji: discord.Emoji, force_refresh: bool) -> None:
+        suffix = "gif" if emoji.animated else "png"
+        f_stem = f"{self.internal_slug(emoji.guild.name)}.{self.internal_slug(emoji.name)}"
+        f_path = self.output_path / f"{f_stem}.{suffix}"
+
+        if not force_refresh and f_path.exists():
+            return False
+
+        try:
+            # can we even open the file?
+            # don't download the emoji if we can't
+            open(f_path, "wb").close()
+        except Exception:
+            return False
+
+        with open(f_path, "wb") as emoji_file:
+            # send a different header because otherwise we get a 403
+            req = await client.get(emoji.url, headers={"User-Agent": "Mozilla/5.0"})
+            if req != 200:
+                return False
+
+            emoji_file.write(req.content)
 
     async def _enumerate_emojis(self):
         start = time.perf_counter()
