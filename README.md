@@ -9,7 +9,8 @@ This script uses libraries that enable "self botting", which is explicitly again
 Pasting to a Teams chat.
 ![pasting a discord animated emoji into a teams chat](demo%2FTeamsDemo.gif)
 ## Features
- - Fast and near universal
+ - Fast and near universal operation
+ - Parallel emoji downloads
  - Animated and static emoji support
  - Normalize emoji size
  - Deduplicated search results
