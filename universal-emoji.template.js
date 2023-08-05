@@ -61,6 +61,10 @@ function loadEmojis(emojiObjs) {
         }
         const tags = `${emojiObj.name},${emojiObj.guild},${emojiObj.extension}`;
         const emojiBytes = emojiFile.readAll();
+        if (emojiBytes.length === 0) {
+            console.log(`warning: emoji file is empty. Did the downloader fail? ${emojiObj}`);
+            continue;
+        }
         const emojiMd5 = md5sum(emojiBytes);
         if (!seenEmojiHashes.has(emojiMd5)) {
             seenEmojiHashes.add(emojiMd5);
