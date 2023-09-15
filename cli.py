@@ -15,7 +15,8 @@ except ImportError:
 
 DUMP_COMMAND = "dump"
 GENERATE_COMMAND = "generate"
-
+IMPORT_COMMAND = "import"
+EXPORT_COMMAND = "export"
 
 def main():
     dotenv.load_dotenv()
@@ -115,6 +116,9 @@ def add_generate_parser(subparsers):
         default="ctrl+shift+;",
     )
 
+def add_import_export_parsers(subparsers):
+    import_parser = subparsers.add_parser(IMPORT_COMMAND, help="import an exported dump of emojis")
+    export_parser = subparsers.add_parser(EXPORT_COMMAND, help="Export emojis to a file")
 
 if __name__ == "__main__":
     main()
